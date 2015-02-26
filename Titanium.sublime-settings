@@ -5,6 +5,8 @@
 	"loggingLevel": "info",
 	// Path to the android sdk
 	"androidSDK": "~/Library/android-sdk-macosx",
+	// Path to your Google Play Services keystore file.
+	"androidKeystore": "",
 	// Extra Settings for the iOS Simulator
 	// If you dont want to set them, make the values false
 	// simulatorType - This will override the selection popup, value can be "iphone", "ipad" or false

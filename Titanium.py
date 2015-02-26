@@ -18,6 +18,9 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
         self.iosSimVersion    = settings.get("iosSimVersion", False)
         self.tiInspectorHost  = settings.get("tiInspectorHost", False)
         self.genymotionCLI    = str(settings.get("genymotionCLI", "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell"))
+        self.androidKeystore  = settings.get("androidKeystore", "")
+        self.keystorePassword = ""
+        self.keyAlias         = ""
 
         folders = self.window.folders()
         if len(folders) <= 0:
@@ -99,9 +102,17 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
     def show_quick_panel(self, options, done):
         sublime.set_timeout(lambda: self.window.show_quick_panel(options, done), 10)
 
+    def show_input_panel(self, caption, text, done, cancel):
+        sublime.set_timeout(lambda: self.window.show_input_panel(caption, text, done, None, cancel), 10)
+
     # get the current project's SDK from tiapp.xml
     def get_project_sdk_version(self):
         process = subprocess.Popen([self.cli, "project", "sdk-version", "--project-dir", self.project_folder, "--output=text"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result, error = process.communicate()
+        return result.decode('utf-8').rstrip('\n')
+
+    def get_project_version(self):
+        process = subprocess.Popen([self.cli, "project", "version", "--project-dir", self.project_folder, "--output=text"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result, error = process.communicate()
         return result.decode('utf-8').rstrip('\n')
 
@@ -171,8 +182,37 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
         elif (target == "GenyMotion"):
             self.load_genymotion_vms();
             self.show_quick_panel(self.genymotionvms, self.select_genymotion_vm)
+        elif (target == "dist-playstore"):
+            self.target = target
+            if self.androidKeystore == "":
+                self.show_input_panel("Path to your keystore", self.androidKeystore, self.set_android_keystore, self.cancel)
+            else:
+                self.show_input_panel("Keystore password", self.keystorePassword, self.set_android_keystore_password, self.cancel)
         else:
             self.run_titanium(["--target", target])
+
+    def cancel(self):
+        return
+
+    def set_android_keystore(self, select):
+        if select == "":
+            return
+        self.androidKeystore = select
+        self.show_input_panel("Keystore password", self.keystorePassword, self.set_android_keystore_password, self.cancel)
+
+    def set_android_keystore_password(self, select):
+        if select == "":
+            return
+        self.keystorePassword = select
+        self.show_input_panel("Key Alias", self.keyAlias, self.set_android_key_alias, self.cancel)
+
+    def set_android_key_alias(self, select):
+        if select == "":
+            return
+        self.keyAlias = select
+        project_version = self.get_project_version()
+        output_folder = self.project_folder + "/dist/" + project_version
+        self.run_titanium(["--target", self.target, "--keystore", self.androidKeystore, "--store-password", self.keystorePassword, "--alias", self.keyAlias, "--output-dir", output_folder])
 
     def select_android_avd(self, select):
         if select < 0:
@@ -334,7 +374,8 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
             options.extend(["--distribution-name", "\"" + self.cert + "\""])
 
         if self.target == "dist-adhoc":
-            options.extend(["--output-dir", self.project_folder + "/dist"])
+            project_version = self.get_project_version()
+            options.extend(["--output-dir", self.project_folder + "/dist/" + project_version])
 
         self.run_titanium(options)
 
