@@ -371,7 +371,7 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
             options.extend(["--developer-name", "\"" + self.cert[0] + "\""])
             options.extend(["--device-id", self.deviceudid])
         else:
-            options.extend(["--distribution-name", "\"" + self.cert + "\""])
+            options.extend(["--distribution-name", "\"" + self.cert[0] + "\""])
 
         if self.target == "dist-adhoc":
             project_version = self.get_project_version()
