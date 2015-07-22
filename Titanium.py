@@ -19,6 +19,7 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
         self.tiInspectorHost  = settings.get("tiInspectorHost", False)
         self.genymotionCLI    = str(settings.get("genymotionCLI", "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell"))
         self.androidKeystore  = settings.get("androidKeystore", "")
+        self.useProjectNames   = settings.get("useProjectNames", False)
         self.keystorePassword = ""
         self.keyAlias         = ""
 
@@ -33,7 +34,47 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
                 self.pick_platform()
             else:
                 self.multipleFolders = True
-                self.pick_project_folder(folders)
+                if self.useProjectNames == True:
+                    projectFolders = self.get_project_folders()
+                    projectNames = []
+                    for val in projectFolders:
+                        projectNames.append(val['name'])
+                    self.pick_project_name(projectNames)
+                else:
+                    self.pick_project_folder(folders)
+
+        # message_dialog(string)
+
+    def get_project_folders(self):
+        project = self.window.project_data()
+        return project['folders']
+
+    def pick_project_name(self, projects):
+
+        # only show most recent when there is a command stored
+        if 'titaniumMostRecent' in globals():
+            projects.insert(0, 'most recent configuration')
+
+        self.show_quick_panel(projects, self.select_project_name)
+
+
+    def select_project_name(self, select):
+        if select < 0:
+            return
+
+        # if most recent was an option, we need subtract 1
+        # from the selected index to match the folders array
+        # since the "most recent" option was inserted at the beginning
+        if 'titaniumMostRecent' in globals():
+            select = select - 1
+
+        if select == -1:
+            self.window.run_command("exec", titaniumMostRecent)
+        else:
+            projectFolders = self.get_project_folders()
+            self.project_folder = projectFolders[select]['path']
+            self.project_sdk = self.get_project_sdk_version()
+            self.pick_platform()
 
     def pick_project_folder(self, folders):
         folderNames = []

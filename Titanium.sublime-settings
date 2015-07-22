@@ -7,6 +7,12 @@
 	"androidSDK": "~/Library/android-sdk-macosx",
 	// Path to your Google Play Services keystore file.
 	"androidKeystore": "",
+
+	//If True, will get the "name" property from the .sublime-project file
+	//To use to display project names in the build dialog. 
+	//if False (default), will just use the actual folder names.
+	"useProjectNames": false,
+
 	// Extra Settings for the iOS Simulator
 	// If you dont want to set them, make the values false
 	// simulatorType - This will override the selection popup, value can be "iphone", "ipad" or false
@@ -21,5 +27,6 @@
 	"iosSimVersion": false,
 	// This can be used to load up a TiInspector host for iOS debugging, value can be host url (e.g. localhost:8999) or false
 	"tiInspectorHost": false,
-	"genymotionCLI": "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell"
+	"genymotionCLI": "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell",
+
 }
