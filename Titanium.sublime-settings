@@ -1,32 +1,31 @@
 {
-	// Path to the Titanium CLI
-	"titaniumCLI": "/usr/bin/titanium",
+	// Path to the Appcelerator CLI
+	"appceleratorPath": "/usr/local/bin/appc",
+
+	// Appcelerator Platform account username
+	//If not provided, you will be prompted
+	//to enter your username during each build
+	"appceleratorUsername": "",
+
+	// Appcelerator Platform account password
+	//If not provided, you will be prompted
+	//to enter your password during each build
+	"appceleratorPassword": "",
+
+	//Path to your Google Play Services keystore file
+	//If not provided, you will be prompted to enter the path
+	"androidKeystore": "",
+
 	// Logging Level [trace, debug, info, warn, error]
 	"loggingLevel": "info",
-	// Path to the android sdk
-	"androidSDK": "~/Library/android-sdk-macosx",
-	// Path to your Google Play Services keystore file.
-	"androidKeystore": "",
 
 	//If True, will get the "name" property from the .sublime-project file
 	//To use to display project names in the build dialog. 
 	//if False (default), will just use the actual folder names.
 	"useProjectNames": false,
 
-	// Extra Settings for the iOS Simulator
-	// If you dont want to set them, make the values false
-	// simulatorType - This will override the selection popup, value can be "iphone", "ipad" or false
-	"simulatorType": false,
-	// This will override the selection popup, value can be true or false
-	"simulatorRetina": false,
-	// This will override the selection popup, value can be true or false
-	"simulatorTall": false,
-	// This will override the selection popup, value can be any version of the iOS SDK you have installed or false
-	"iosVersion": false,
-	// This will override the selection popup, value can be any version of the iOS Simulator you have installed or false
-	"iosSimVersion": false,
-	// This can be used to load up a TiInspector host for iOS debugging, value can be host url (e.g. localhost:8999) or false
-	"tiInspectorHost": false,
-	"genymotionCLI": "/Applications/Genymotion Shell.app/Contents/MacOS/genyshell",
-
+	//Set a build type/family (universal, iphone, ipad) for ios builds. 
+	//Set this to false to specify the build type during each build
+	//ex: "iosBuildFamily": "universal"
+	"iosBuildFamily": false
 }
