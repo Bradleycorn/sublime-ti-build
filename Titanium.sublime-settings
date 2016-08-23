@@ -12,6 +12,9 @@
 	//to enter your password during each build
 	"appceleratorPassword": "",
 
+	//Path to your Android SDK
+	"androidSDK": "/Users/bradb/Development/sdk/android",
+
 	//Path to your Google Play Services keystore file
 	//If not provided, you will be prompted to enter the path
 	"androidKeystore": "",

@@ -15,6 +15,7 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
         self.appcUser           = settings.get("appceleratorUsername", "")
         self.appcPass           = settings.get("appceleratorPassword", "")
         self.iosBuildFamily     = settings.get("iosBuildFamily", False)
+        self.androidSDK         = settings.get("androidSDK", "")
 
 
         #Options for the various dialogs that the user chooses from to create the build command
@@ -249,15 +250,21 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
                 self.show_input_panel("Keystore password", self.keystorePassword, self.set_android_keystore_password, self.cancel)
         else: 
             #self.target == device
-            if (len(self.androidDevices) == 1):
-                self.deviceID = self.androidDevices[0]["id"]
+            #if (len(self.androidDevices) < 1):
+            #    sublime.error_message("No Android Devices Connected")
+            #    return
+            #elif (len(self.androidDevices) == 1):
+            #    self.deviceID = self.androidDevices[0]["id"]
                 self.android_options_complete()
-            else:
-                self.load_android_device_options()
-                self.show_quick_panel(self.deviceOptions, self.select_android_device)
+            #else:
+            #    self.load_android_device_options()
+            #    self.show_quick_panel(self.deviceOptions, self.select_android_device)
 
     def android_options_complete(self):
         buildOpts = []
+
+        if self.androidSDK != "":
+            buildOpts.extend(["--android-sdk", self.androidSDK])
 
         if self.deviceID != "":
             buildOpts.extend(["--device-id", self.deviceID])
@@ -441,13 +448,7 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
     def load_ios_simulator_options(self):
         self.emulatorOptions = []
         for obj in self.iosSimulators:
-            title = obj["deviceType"] + " - iOS " + obj["ios"]
-            if (obj["retina"] == True and obj["tall"] == False):
-                title += " (retina)"
-            elif (obj["retina"] == True and obj["tall"] == True):
-                title += " (retina tall)"
-            elif (obj["retina"] == False and obj["tall"] == True):
-                title += " (tall)"
+            title = obj["deviceName"] + " - iOS " + obj["version"]
 
             self.emulatorOptions.append([title, obj["udid"]])
 
@@ -543,13 +544,16 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
     #Uses appc info to get info about the various devices, emulators, certificates, sdk's and such that are installed
     def load_environment_info(self):
         sublime.status_message("Loading Build Environment Information...")
-        process = subprocess.Popen([self.appc, "ti", "info", "--username", self.appcUser, "--password", self.appcPass, "-o", "json", "--no-banner"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        cmd = [self.appc, "ti", "info", "--username", self.appcUser, "--password", self.appcPass, "-o", "json", "--no-banner"]
+        print("RUNNING COMMAND")
+        print(' '.join(cmd))
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         result, error = process.communicate()
         info = json.loads(result.decode('utf-8'))
 
 
         self.androidEmulators = info["android"]["emulators"]
-        self.androidDevices = info["android"]["devices"]
+        #self.androidDevices = info["android"]["devices"]
         self.iosSimulators = []
         self.iosDevices = []
         self.iosDeveloperCertificates = []
@@ -561,7 +565,7 @@ class TitaniumCommand(sublime_plugin.WindowCommand):
         for device in info["ios"]["devices"]:
             self.iosDevices.append(device)
 
-        for name, arr in list(info["ios"]["simulators"].items()):
+        for name, arr in list(info["ios"]["simulators"]["ios"].items()):
             for sim in arr:
                 self.iosSimulators.append(sim)
 
